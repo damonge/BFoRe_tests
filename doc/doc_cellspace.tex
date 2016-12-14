@@ -1,0 +1,87 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{fullpage}
+\usepackage{graphicx}
+\newcommand{\nv}{\hat{\bf n}}
+\newcommand{\tv}{\vec{\theta}}
+\newcommand{\dpar}{\delta_\parallel}
+
+%opening
+\title{Foreground cleaning in power-spectrum space}
+\author{John Locke}
+
+\begin{document}
+
+\maketitle
+
+\section{Foreground model}
+Let ${\bf a}_{\ell m}^i$ be the SHT of the $i$-th channel map with frequency $\nu_i$. We represent it as a vector with
+components $T$, $E$ and $B$, and we model it as:
+\begin{equation}
+ {\bf a}_{\ell m}^i=\sum_{\alpha}{\bf b}_{\ell m}^\alpha\,f_\alpha^i,
+\end{equation}
+where $\alpha$ runs over three different components: CMB ($\alpha=c$), synchrotron ($\alpha=s$)
+and dust ($\alpha=d$). $f^i_\alpha$ is the frequency evolution of the $\alpha$-th component
+in the $i$-th frequency channel, which we model as:
+\begin{equation}
+  f_c(\nu)=\frac{x^2\,e^x}{(e^x-1)^2},\hspace{12pt}
+  f_s(\nu)=\left(\frac{\nu}{\nu_*^s}\right)^{\beta_s},\hspace{12pt}
+  f_d(\nu)=\left(\frac{\nu}{\nu_*^d}\right)^{\beta_d+1}
+  \frac{\exp[h\nu_*^d/(k_BT_d)]-1}{\exp[h\nu/(k_BT_d)]-1},
+\end{equation}
+where $x\equiv h\nu/(k_B\,T_{\rm CMB})$.
+
+The cross-power spectrum of all channels is then:
+\begin{equation}
+ \langle {\bf a}^i_{\ell m}({\bf a}^j_{\ell m})^\dag\rangle\equiv \mathsf{C}^{ij}_\ell=
+ \sum_{\alpha_1,\alpha_2}\mathsf{C}^{\alpha_1,\alpha_2}_\ell\,
+ f^{i}_{\alpha_1}f^{j}_{\alpha_2},
+\end{equation}
+where we model the cross-power spectrum of the different components as:
+\begin{align}
+ & \mathsf{C}_\ell^{c,c}=\text{bandpowers or parametrized model (CAMB)},\\
+ & \mathsf{C}_\ell^{c,\alpha_2\neq c}=\mathsf{C}_\ell^{\alpha_1\neq c,c}=0,\\
+ & \mathsf{C}_\ell^{\alpha_1=(s,d),\alpha_2=(s,d)}=\text{bandpowers or parametrized model (power law?)}.
+\end{align}
+
+\subsection{Degrees of freedom}
+Let there be $N_\nu$ frequency channels and $N_c$ components, $N_p$ polarization channels, and assume that the power
+spectra have been measured in $N_\ell$ bandpowers. The total number of degrees of freedom would be
+\begin{equation}
+  \#{\rm dof}=N_\ell\left[N_\nu N_p(N_\nu N_p+1)/2-(\#{\rm spec})-(\#{\rm param\,CMB})-N_c\times2\right]
+\end{equation}
+if one uses parametrized models for the component power spectra, and
+\begin{equation}
+  \#{\rm dof}=N_\ell\left[N_\nu N_p(N_\nu N_p+1)/2-N_c N_p(N_c N_p+1)/2-(\#{\rm spec})\right]
+\end{equation}
+if bandpowers are used instead. In the latter case, the free parameters of the model are:
+\begin{equation}
+  \theta\equiv\beta_s,\,\beta_d,\,T_d,\,\mathsf{C}^{cc}_{\ell_k},\,\mathsf{C}^{ss}_{\ell_k},\,\mathsf{C}^{sd}_{\ell_k},\,\mathsf{C}^{dd}_{\ell_k}.
+\end{equation}
+
+
+\section{Likelihood}
+We will assume (wrongly) a Gaussian likelihood for the parameters:
+\begin{equation}
+ \chi^2\equiv-2\log p(\theta|\hat{\mathsf{C}}^{ij}_{\ell_k})=\sum_{k,k'}\sum_{a,b}
+ [\mathsf{C}^{a}_{\ell_k}(\theta)-\hat{\mathsf{C}}^{a}_{\ell_k}]\,(M^{-1})^{a,b}_{k,k'}
+ [\mathsf{C}^{b}_{\ell_{k'}}(\theta)-\hat{\mathsf{C}}^{b}_{\ell_{k'}}]
+\end{equation}
+where we have labelled each bandpower by an index $k$ and all quantities labelled by ${\ell_k}$ are averaged over the corresponding
+bandpower. The indices $a$ and $b$ label here all possible combinations of frequency and polarization channels. Here $M$ is the
+covariance matrix of the power spectrum, given below, and $\mathsf{C}_\ell(\theta)$ is the model power spectra
+as described above.
+
+\subsection{Covariance}
+Here we will assume a theoretical Gaussian covariance matrix, given by:
+\begin{equation}
+ M^{(iP_i,jP_j),(pQ_p,qQ_q)}_{k,k'}\equiv\left\langle\Delta\hat{\mathsf{C}}^{iP_i,jP_j}_{\ell_k}\,\Delta\hat{\mathsf{C}}^{pQ_p,qQ_q}_{\ell_{k'}}\right\rangle=
+ \frac{\left[\mathsf{C}_{\ell_k}^{iP_i,pQ_p}\mathsf{C}_{\ell_k}^{jP_j,qQ_q}+\mathsf{C}_{\ell_k}^{iP_i,qQ_q}\mathsf{C}_{\ell_k}^{jP_j,pQ_p}\right]}{(2\ell_k+1)\Delta\ell_kf_{\rm sky}}\delta_{kk'},
+\end{equation}
+where $\Delta{\ell_k}$ is the bandpower width, and $P_i,\,Q_i$ label the polarization channels. We have assumed that the bandpowers are wide enough so
+that correlations between different bandpowers caused by the incomplete sky coverage are negligible, and that its effects can be
+encapsulated in the factor $f_{\rm sky}$. We will estimate the covariance matrix using the power spectra measured from the data.
+
+\end{document}

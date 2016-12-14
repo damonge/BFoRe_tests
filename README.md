@@ -1,0 +1,1 @@
+# BFoRe - Bayesian Foreground Removal

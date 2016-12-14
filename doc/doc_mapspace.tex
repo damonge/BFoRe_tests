@@ -1,0 +1,97 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{fullpage}
+\usepackage{amsmath}
+\newcommand{\nv}{{\bf n}}
+\newcommand{\wtj}[6]{\left(\begin{array}{ccc} #1 & #2 & #3\\#4 & #5 & #6\end{array} \right)}
+
+
+%opening
+\title{Bayesian foreground cleaning}
+\author{Dr. Frankenstein}
+
+\begin{document}
+
+\maketitle
+
+\section{Setup}
+Model:
+\begin{equation}
+  {\bf d}=\hat{F}\cdot{\bf T}+{\bf n}
+\end{equation}
+
+\begin{itemize}
+ \item ${\bf d},\,{\bf n}\,\leftarrow (N_p\,N_c\,N_\nu)$: data and noise.
+ \item $\hat{N}\equiv\langle{\bf n}\cdot{\bf n}^T\rangle\,\leftarrow (N_p\,N_c\,N_\nu)\times(N_p\,N_c\,N_\nu)$: inverse noise variance.
+ \item ${\bf T}\,\leftarrow (N_p\,N_c\,N_a)$: component amplitudes.
+ \item $\hat{F}\,\leftarrow (N_p\,N_c\,N_\nu)\times(N_p\,N_c\,N_a)$: component frequency dependence.
+\end{itemize}
+Where:
+\begin{itemize}
+ \item $N_\nu$: number of frequency channels
+ \item $N_p$: number of pixels
+ \item $N_c=3$: number of polarization channels
+ \item $N_a=3$: number of components (CMB, synchrotron and dust).
+ \item The spectral dependence is:
+ \begin{equation}
+  F_{(p'\,c'\,\nu),(p\,c\,a)}\equiv f_a(\nu;{\bf b}_a^c(p))\,\delta_{p,p'}\delta_{c,c'}
+ \end{equation}
+ and ${\bf b}$ is a set of spectral parameters. Explicitly:
+ \begin{align}
+   {\rm CMB}&:\,f_C(\nu)=B_\nu(\Theta_{\rm CMB}),\\
+   {\rm synch.}&:\,f_s(\nu;\beta_s)=\left(\frac{\nu}{\nu_0^s}\right)^{\beta_s}\\
+   {\rm dust.}&:\,f_d(\nu;\beta_d,\theta_d)=\left(\frac{\nu}{\nu_0^d}\right)^{\beta_d}\frac{B_\nu(\theta_d)}{B_{\nu_0^d}(\theta_d)}
+ \end{align}
+ \item The noise variance is diagonal in frequency and polarization channels:
+ \begin{equation}
+   N_{(p\,c\,\nu),(p'\,c'\,\nu')}=N_{p,p'}^{c\nu}\delta_{cc'}\delta_{\nu\nu'}
+ \end{equation}
+\end{itemize}
+
+This method consists on sampling the distribution of the parameters:
+\begin{itemize}
+ \item ${\bf T}\rightarrow 3\times3\times N_p$ amplitudes.
+ \item ${\bf b}^c_a: \beta_s^c(p),\,\beta_d^c(p),\,\theta_d^c(p)$ spectral indices. If they were completely free they'd
+       be $3\times3\times N_p$ free parameters, and therefore the system could easily be overparametrized. We will use the
+       following simplifying assumptions:
+       \begin{enumerate}
+        \item Tier 1: The spectral parameters vary only over larger pixels $N_p'\ll N_p$.
+        \item Tier 1: The spectral parameters are the same for $Q$ and $U$.
+        \item Tier 2: The spectral parameters are the same for $T$ and $P$.
+        \item Tier 3: The dust temperature is constant across the sky.
+       \end{enumerate}
+\end{itemize}
+Thus, in total we have $9\times N_p+6\times N_p'$ parameters for Tier 1, $9\times N_p+3\times N_p'$ for Tier 2 and $9\times N_p+2\times N_p'+1$ for Tier 3.
+
+\section{Sampling the likelihood}
+The joint posterior is:
+\begin{equation}
+ p({\bf T},{\bf b}|{\bf d})\propto p_l({\bf d}|{\bf T},{\bf b})\,p_p({\bf T},{\bf b}),
+\end{equation}
+where $p_p$ is the prior and $p_l$ is the Gaussian likelihood, given by
+\begin{equation}
+  -2\log p_l({\bf d}|{\bf T},{\bf b})=c+\left[{\bf d}-\hat{F}({\bf b})\cdot{\bf T}\right]^T\cdot\hat{N}\cdot\left[{\bf d}-\hat{F}({\bf b})\cdot{\bf T}\right]
+\end{equation}
+
+The Gibbs-sampling algorithm is:
+\begin{enumerate}
+ \item ${\bf T}_{n+1}\leftarrow p({\bf T}|{\bf d},{\bf b}_n)\propto p({\bf d}|{\bf T},{\bf b}_n)\,p({\bf T})$
+ \item ${\bf b}_{n+1}\leftarrow p({\bf b}|{\bf d},{\bf T}_{n+1})\propto p({\bf d}|{\bf T}_{n+1},{\bf b})\,p({\bf b})$ 
+\end{enumerate}
+{\bf Obs:} I'm not sure about the second equality in both cases.
+
+\subsection{Sampling the amplitudes ${\bf T}$}
+In this case the probability distribution is 
+\begin{equation}
+ -2\log p({\bf T}|{\bf d},{\bf b})=c+({\bf d}-\hat{F}{\bf T})^T\hat{N}^{-1}({\bf d}-\hat{F}{\bf T})+{\bf T}^T\hat{N}_P^{-1}{\bf T},
+\end{equation}
+where $\hat{N}_P$ is the prior matrix. The distribution is therefore Gaussian in ${\bf T}$, and hence the amplitudes can be sampled analytically from
+\begin{equation}
+ {\bf T}\leftarrow N\left({\bf m}=\hat{C}\hat{F}^T\hat{N}^{-1}{\bf d}\,;\,\hat{C}\right),
+ \hspace{12pt}\hat{C}\equiv(\hat{F}^T\hat{N}^{-1}\hat{F}+\hat{N}_P^{-1})^{-1}
+\end{equation}
+
+
+
+
+\end{document}
